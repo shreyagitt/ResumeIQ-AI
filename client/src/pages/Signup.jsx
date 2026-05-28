@@ -94,7 +94,7 @@ function Signup() {
               name="name"
               placeholder="Enter your name"
               onChange={handleChange}
-              className="w-full bg-black text-zinc-400  border border-zinc-800 rounded-xl px-4 py-3 outline-none focus:border-white transition"
+              className="w-full bg-black text-zinc-400  border border-zinc-800 rounded-xl px-4 py-3 outline-none focus:border-white-100 transition"
             />
           </div>
 
