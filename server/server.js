@@ -20,11 +20,7 @@ const app = express();
 
 // MIDDLEWARE
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://resume-iq-ai-tawny.vercel.app/"
-  ],
-  credentials: true,
+  origin: "*",
 }));
 app.use(express.json());
 
