@@ -26,7 +26,7 @@ function Signup() {
     try {
 
       const res = await API.post(
-        "/auth/register",
+        "/api/auth/register",
         formData
       );
 
