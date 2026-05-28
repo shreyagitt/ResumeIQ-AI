@@ -14,6 +14,8 @@ import {
 } from "../services/recruiterService";
 
 function RecruiterDashboard() {
+    const API_URL =
+  import.meta.env.VITE_API_URL;
 
   const [candidates, setCandidates] =
     useState([]);
@@ -205,7 +207,7 @@ function RecruiterDashboard() {
                           }
                         </button>
                         <a
-  href={`http://localhost:5000${candidate.resumeFile}`}
+  href={`${API_URL}${candidate.resumeFile}`}
   target="_blank"
   rel="noreferrer"
   className="ml-3 bg-zinc-800 px-4 py-2 rounded-xl"
