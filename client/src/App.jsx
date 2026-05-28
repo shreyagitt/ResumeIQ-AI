@@ -8,6 +8,7 @@ import UploadResume from "./pages/UploadResume";
 import ATSResult from "./pages/ATSResult";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import LiveDemo from "./components/LiveDemo";
 
 function App() {
 
@@ -58,6 +59,15 @@ function App() {
     <ProtectedRoute>
       <RecruiterDashboard />
     </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/live"
+  element={
+    
+      <LiveDemo />
+    
   }
 />
 

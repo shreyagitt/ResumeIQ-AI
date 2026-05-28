@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+
 function Hero() {
   return (
     <section className="flex flex-col items-center justify-center text-center px-6 py-32">
@@ -25,9 +26,12 @@ function Hero() {
           Get Started
         </Link>
 
-        <button className="border border-zinc-800 px-6 py-3 rounded-2xl hover:bg-zinc-900 transition">
+        <Link
+          to="/live"
+          className="border border-zinc-800 px-6 py-3 rounded-2xl hover:bg-zinc-900 transition"
+        >
           Live Demo
-        </button>
+        </Link>
       </div>
 
       <div className="mt-24 w-full max-w-5xl border border-zinc-900 rounded-3xl bg-zinc-950 p-6 shadow-2xl">
