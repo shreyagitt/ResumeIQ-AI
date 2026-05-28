@@ -22,7 +22,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://vercel.com/shreya-shrees-projects/resume-iq-ai"
+    "https://resume-iq-ai-tawny.vercel.app/"
   ],
   credentials: true,
 }));
