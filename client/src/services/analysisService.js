@@ -6,7 +6,7 @@ export const getAnalysisHistory =
   async () => {
 
     const res = await API.get(
-      "/analysis/history",
+      "/api/analysis/history",
       {
         headers: {
           Authorization:
@@ -23,7 +23,7 @@ export const getLatestAnalysis =
   async () => {
 
     const res = await API.get(
-      "/analysis/latest",
+      "/api/analysis/latest",
       {
         headers: {
           Authorization:

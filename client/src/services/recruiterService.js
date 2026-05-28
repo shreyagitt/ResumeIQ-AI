@@ -7,7 +7,7 @@ export const getCandidates =
 
     const res =
       await API.get(
-        "/recruiter/candidates",
+        "/api/recruiter/candidates",
         {
           headers: {
             Authorization:
@@ -28,7 +28,7 @@ export const toggleShortlist =
 
     const res =
       await API.put(
-        `/recruiter/shortlist/${id}`,
+        `/api/recruiter/shortlist/${id}`,
         {},
         {
           headers: {
