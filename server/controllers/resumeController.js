@@ -1,89 +1,65 @@
 const fs = require("fs");
-
 const pdfParse = require("pdf-parse");
 
 const skillsList = require("../utils/skills");
-const Analysis =
-  require("../models/Analysis");
+const Analysis = require("../models/Analysis");
+const model = require("../utils/qwen");
 
-const model = require("../utils/gemini");
-
-
-// UPLOAD + ANALYZE RESUME
 const uploadResume = async (req, res) => {
-
   try {
-
-    // CHECK FILE
+    // Check file
     if (!req.file) {
       return res.status(400).json({
         message: "No file uploaded",
       });
     }
 
-    // READ PDF FILE
-    const dataBuffer = fs.readFileSync(
-      req.file.path
-    );
+    // Read PDF
+    const dataBuffer = fs.readFileSync(req.file.path);
 
-    // PARSE PDF
+    // Parse PDF
     const pdfData = await pdfParse(dataBuffer);
 
-    // EXTRACT TEXT
-    const extractedText =
-      pdfData.text.toLowerCase();
+    // Resume text
+    const extractedText = pdfData.text.toLowerCase();
 
-    // JOB DESCRIPTION
-    const jobDescription =
-      req.body.jobDescription.toLowerCase();
+    // Job Description
+    const jobDescription = (req.body.jobDescription || "").toLowerCase();
 
-
-    // MATCHED + MISSING SKILLS
+    // Skill Matching
     const matchedSkills = [];
-
     const missingSkills = [];
 
-
     skillsList.forEach((skill) => {
+      const inResume = extractedText.includes(skill);
+      const inJD = jobDescription.includes(skill);
 
-      const inResume =
-        extractedText.includes(skill);
-
-      const inJD =
-        jobDescription.includes(skill);
-
-      // MATCHED
       if (inResume && inJD) {
         matchedSkills.push(skill);
       }
 
-      // MISSING
       if (!inResume && inJD) {
         missingSkills.push(skill);
       }
-
     });
 
-
-    // ATS SCORE
+    // ATS Score
     let atsScore = 0;
 
     const totalSkills =
-      matchedSkills.length +
-      missingSkills.length;
+      matchedSkills.length + missingSkills.length;
 
     if (totalSkills > 0) {
-
       atsScore = Math.round(
         (matchedSkills.length / totalSkills) * 100
       );
-
     }
 
-
-    // GEMINI AI SUGGESTIONS
+    // Prompt
     const prompt = `
-You are an ATS resume analyzer.
+You are an experienced ATS Resume Reviewer.
+
+Analyze the resume against the given Job Description.
 
 Resume:
 ${extractedText}
@@ -92,94 +68,79 @@ Job Description:
 ${jobDescription}
 
 Matched Skills:
-${matchedSkills.join(", ")}
+${matchedSkills.join(", ") || "None"}
 
 Missing Skills:
-${missingSkills.join(", ")}
+${missingSkills.join(", ") || "None"}
 
-Provide 5 short professional ATS improvement suggestions.
+Instructions:
+- Give exactly 5 personalized ATS suggestions.
+- Mention missing skills if any.
+- Mention weak sections if any.
+- Suggest improvements to projects, experience and resume.
+- Keep every suggestion under 30 words.
+- Return ONLY the numbered suggestions.
 `;
 
-    /*const result =
-      await model.generateContent(prompt);
+    let aiSuggestions = "";
 
-    const aiSuggestions =
-      result.response.text();*/
+    try {
+      console.log("========== CALLING QWEN ==========");
 
-      let aiSuggestions = "";
+      aiSuggestions = await model.generateContent(prompt);
 
-try {
+      console.log("========== GENERATED SUGGESTIONS ==========");
+      console.log(aiSuggestions);
 
-  const result =
-    await model.generateContent(prompt);
+    } catch (error) {
 
-  aiSuggestions =
-    result.response.text();
+      console.error("========== AI ERROR ==========");
+      console.error(error);
 
-} catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "AI generation failed",
+        error: error.message,
+      });
+    }
 
-  console.log("Gemini Error:", error.message);
-
-  aiSuggestions = `
-1. Add more quantified achievements.
-2. Mention deployment experience.
-3. Improve project descriptions.
-4. Add more backend-related skills.
-5. Include ATS-friendly keywords.
-`;
-
-}
-
-// SAVE ANALYSIS
-
-const savedAnalysis =
-  await Analysis.create({
-
-    user: req.user,
-    resumeFile: `/uploads/${req.file.filename}`,
-
-    atsScore,
-
-    matchedSkills,
-
-    missingSkills,
-
-    extractedText,
-
-    aiSuggestions,
-
-    jobDescription,
-
-});
-
-    // RESPONSE
-    res.status(200).json({
-
-      message:
-        "Resume analyzed successfully",
-
-      extractedText,
-
+    // Save to MongoDB
+    const savedAnalysis = await Analysis.create({
+      user: req.user,
+      resumeFile: `/uploads/${req.file.filename}`,
+      atsScore,
       matchedSkills,
-
       missingSkills,
+      extractedText,
+      aiSuggestions,
+      jobDescription,
+    });
+
+    // Response
+    return res.status(200).json({
+      success: true,
+      message: "Resume analyzed successfully",
+
+      analysisId: savedAnalysis._id,
 
       atsScore,
-
+      matchedSkills,
+      missingSkills,
+      extractedText,
       aiSuggestions,
-
     });
 
   } catch (error) {
 
-    console.log(error);
+    console.error("========== SERVER ERROR ==========");
+    console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
       message: error.message,
     });
 
   }
-
 };
 
 module.exports = {

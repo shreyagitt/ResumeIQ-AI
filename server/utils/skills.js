@@ -29,6 +29,9 @@ const skills = [
   "keras",
   "numpy",
   "pandas",
+  "rust",
+  "langchain",
+  "langGraph"
 
 ];
 
